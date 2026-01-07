@@ -3263,7 +3263,7 @@ import '../css/phonetrack.scss'
 				color: (i) => {
 					return { r: 1, g: 0, b: 0, a: 1 }
 				}, // red (RGBA 0–1)
-				size: 4, // pixel size of point
+				size: 7, // pixel size of point
 				opacity: 1,
 				fragmentShaderSource: 'precision mediump float;\n'
                     + '\n'
@@ -3272,7 +3272,7 @@ import '../css/phonetrack.scss'
                     + 'void main() {\n'
                     + '    // Circle parameters\n'
                     + '    float border = 0.1;\n'
-                    + '    float radius = 2;\n'
+                    + '    float radius = 0.5;\n'
                     + '    vec2 center = vec2(0.5, 0.5);\n'
                     + '\n'
                     + '    // Point color\n'

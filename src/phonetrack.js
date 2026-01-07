@@ -3253,49 +3253,30 @@ import '../css/phonetrack.scss'
 	}
 
 	// draw lines for a device, with arrows and gradient if needed
-	function drawLine(s, d, linesCoords, linegradient, linewidth, linearrow) {
-		let line, i, j
-		for (i = 0; i < linesCoords.length; i++) {
-			if (linegradient) {
-				const coordsTmp = []
-				for (j = 0; j < linesCoords[i].length; j++) {
-					coordsTmp.push([linesCoords[i][j][0], linesCoords[i][j][1], j])
-				}
-				line = L.hotline(coordsTmp, {
-					weight: linewidth,
-					outlineWidth: 2,
-					outlineColor: phonetrack.sessionColors[s + d],
-					palette: { 0.0: 'white', 1.0: 'black' },
-					min: 0,
-					max: linesCoords[i].length - 1,
-				})
-			} else {
-				line = L.polyline(linesCoords[i], { weight: linewidth, className: 'poly' + s + d })
-			}
-			line.session = s
-			line.device = d
-			phonetrack.sessionLineLayers[s][d].addLayer(line)
+    function drawLine(s, d, linesCoords, linegradient, linewidth, linearrow) {
+        let i, j, dot
 
-			if (linearrow && linesCoords[i].length > 1) {
-				const arrows = L.polylineDecorator(line)
-				arrows.setPatterns([{
-					offset: 30,
-					repeat: 100,
-					symbol: L.Symbol.arrowHead({
-						pixelSize: 15 + linewidth,
-						polygon: false,
-						pathOptions: {
-							stroke: true,
-							className: 'poly' + s + d,
-							opacity: 1,
-							weight: parseInt(linewidth * 0.6),
-						},
-					}),
-				}])
-				phonetrack.sessionLineLayers[s][d].addLayer(arrows)
-			}
-		}
-	}
+        for (i = 0; i < linesCoords.length; i++) {
+            for (j = 0; j < linesCoords[i].length; j++) {
+                dot = L.circleMarker(
+                    [linesCoords[i][j][0], linesCoords[i][j][1]],
+                    {
+                        radius: Math.max(2, linewidth), // dot size
+                        color: phonetrack.sessionColors[s + d],
+                        fillColor: phonetrack.sessionColors[s + d],
+                        fillOpacity: 1,
+                        weight: 0,
+                        className: 'dot' + s + d,
+                    },
+                )
+
+                dot.session = s
+                dot.device = d
+
+                phonetrack.sessionLineLayers[s][d].addLayer(dot)
+            }
+        }
+    }
 
 	function markerMouseClick(e) {
 		const s = e.target.session

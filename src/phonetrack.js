@@ -3254,30 +3254,26 @@ import '../css/phonetrack.scss'
 
 	// draw lines for a device, with arrows and gradient if needed
 	function drawLine(s, d, linesCoords, linegradient, linewidth, linearrow) {
-		let i, j, dot
-		const canvasRenderer = L.canvas({ })
-		const dots = []
+		let i, j
+		const canvasRenderer = L.canvas({ padding: 0.5 })
 		for (i = 0; i < linesCoords.length; i++) {
+			const group = L.layerGroup()
+			const dots = new Array(linesCoords.length)
 			for (j = 0; j < linesCoords[i].length; j++) {
-				dot = L.circleMarker(
+				dots[i] = L.circleMarker(
 					[linesCoords[i][j][0], linesCoords[i][j][1]],
 					{
 						radius: Math.max(2, linewidth), // dot size
 						color: phonetrack.sessionColors[s + d],
 						fillColor: phonetrack.sessionColors[s + d],
-						fillOpacity: 1,
-						weight: 0,
 						renderer: canvasRenderer,
 					},
 				)
-
-				dot.session = s
-				dot.device = d
-				dots.push(dot)
-				// phonetrack.sessionLineLayers[s][d].addLayer(dot)
 			}
+			group.addLayers(dots)
+			phonetrack.sessionLineLayers[s][d].addLayer(group)
 		}
-		phonetrack.sessionLineLayers[s][d].addLayers(dots)
+
 	}
 
 	function markerMouseClick(e) {

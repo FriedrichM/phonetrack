@@ -8,4 +8,4 @@
 .*.sw*
 /node_modules
 .php*.cache
-/css/fontawesome-free
+

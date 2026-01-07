@@ -36,7 +36,7 @@ import 'leaflet-hotline/dist/leaflet.hotline.min.js'
 import Countdown from 'ds-countdown/lib/countdown.bundle.js'
 import moment from '@nextcloud/moment'
 import axios, { isCancel } from '@nextcloud/axios'
-
+import 'leaflet.glify'
 import { generateUrl, imagePath } from '@nextcloud/router'
 
 import { escapeHtml } from './utils.js'
@@ -3254,24 +3254,63 @@ import '../css/phonetrack.scss'
 
 	// draw lines for a device, with arrows and gradient if needed
 	function drawLine(s, d, linesCoords, linegradient, linewidth, linearrow) {
-		let i, j
-		const canvasRenderer = L.canvas({ padding: 0.5 })
+		let i
 		for (i = 0; i < linesCoords.length; i++) {
-			const group = L.layerGroup()
-			const dots = new Array(linesCoords.length)
-			for (j = 0; j < linesCoords[i].length; j++) {
-				dots[i] = L.circleMarker(
-					[linesCoords[i][j][0], linesCoords[i][j][1]],
-					{
-						radius: Math.max(2, linewidth), // dot size
-						color: phonetrack.sessionColors[s + d],
-						fillColor: phonetrack.sessionColors[s + d],
-						renderer: canvasRenderer,
-					},
-				)
-			}
-			group.addLayers(dots)
-			phonetrack.sessionLineLayers[s][d].addLayer(group)
+			const points = linesCoords[i].map(coord => [coord[0], coord[1]])
+			L.glify.points({
+				map: phonetrack.map,
+				data: points, // array of [lat, lng]
+				color: (i) => {
+					return { r: 1, g: 0, b: 0, a: 1 }
+				}, // red (RGBA 0–1)
+				size: 4, // pixel size of point
+				opacity: 1,
+				fragmentShaderSource: 'precision mediump float;\n'
+                    + '\n'
+                    + 'varying vec4 _color;\n'
+                    + '\n'
+                    + 'void main() {\n'
+                    + '    // Circle parameters\n'
+                    + '    float border = 0.1;\n'
+                    + '    float radius = 0.5;\n'
+                    + '    vec2 center = vec2(0.5, 0.5);\n'
+                    + '\n'
+                    + '    // Point color\n'
+                    + '    vec4 pointColor = vec4(_color[0], _color[1], _color[2], 1);\n'
+                    + '\n'
+                    + '    // Compute distance from center\n'
+                    + '    vec2 m = gl_PointCoord.xy - center;\n'
+                    + '    float dist1 = radius - sqrt(m.x * m.x + m.y * m.y);\n'
+                    + '\n'
+                    + '    // Alpha for main circle\n'
+                    + '    float t1 = 0.0;\n'
+                    + '    if (dist1 > border) {\n'
+                    + '        t1 = 1.0;\n'
+                    + '    } else if (dist1 > 0.0) {\n'
+                    + '        t1 = dist1 / border;\n'
+                    + '    }\n'
+                    + '\n'
+                    + '    // Border parameters\n'
+                    + '    float outerBorder = 0.05;\n'
+                    + '    float innerBorder = 0.8;\n'
+                    + '    vec4 borderColor = vec4(_color[0], _color[1], _color[2], 0.4); // slightly black border\n'
+                    + '    vec2 uv = gl_PointCoord.xy;\n'
+                    + '    vec4 clearColor = vec4(0.0, 0.0, 0.0, 0.0);\n'
+                    + '\n'
+                    + '    // Offset uv with center of circle\n'
+                    + '    uv -= center;\n'
+                    + '\n'
+                    + '    // Distance for border calculation\n'
+                    + '    float dist2 = sqrt(dot(uv, uv));\n'
+                    + '    float t2 = 1.0 \n'
+                    + '               + smoothstep(radius, radius + outerBorder, dist2)\n'
+                    + '               - smoothstep(radius - innerBorder, radius, dist2);\n'
+                    + '\n'
+                    + '    // Final fragment color\n'
+                    + '    gl_FragColor = mix(mix(borderColor, clearColor, t2), pointColor, t1);\n'
+                    + '}\n',
+
+			})
 		}
 
 	}

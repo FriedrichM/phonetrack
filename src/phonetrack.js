@@ -3253,30 +3253,30 @@ import '../css/phonetrack.scss'
 	}
 
 	// draw lines for a device, with arrows and gradient if needed
-    function drawLine(s, d, linesCoords, linegradient, linewidth, linearrow) {
-        let i, j, dot
+	function drawLine(s, d, linesCoords, linegradient, linewidth, linearrow) {
+		let i, j, dot
 
-        for (i = 0; i < linesCoords.length; i++) {
-            for (j = 0; j < linesCoords[i].length; j++) {
-                dot = L.circleMarker(
-                    [linesCoords[i][j][0], linesCoords[i][j][1]],
-                    {
-                        radius: Math.max(2, linewidth), // dot size
-                        color: phonetrack.sessionColors[s + d],
-                        fillColor: phonetrack.sessionColors[s + d],
-                        fillOpacity: 1,
-                        weight: 0,
-                        className: 'dot' + s + d,
-                    },
-                )
+		for (i = 0; i < linesCoords.length; i++) {
+			for (j = 0; j < linesCoords[i].length; j++) {
+				dot = L.circleMarker(
+					[linesCoords[i][j][0], linesCoords[i][j][1]],
+					{
+						radius: Math.max(2, linewidth), // dot size
+						color: phonetrack.sessionColors[s + d],
+						fillColor: phonetrack.sessionColors[s + d],
+						fillOpacity: 1,
+						weight: 0,
+						className: 'dot' + s + d,
+					},
+				)
 
-                dot.session = s
-                dot.device = d
+				dot.session = s
+				dot.device = d
 
-                phonetrack.sessionLineLayers[s][d].addLayer(dot)
-            }
-        }
-    }
+				phonetrack.sessionLineLayers[s][d].addLayer(dot)
+			}
+		}
+	}
 
 	function markerMouseClick(e) {
 		const s = e.target.session
